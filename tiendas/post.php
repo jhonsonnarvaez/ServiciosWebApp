@@ -18,6 +18,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
       echo json_encode(  $sql->fetch(PDO::FETCH_ASSOC)  );
       exit();
 	  }
+	  else if(isset($_GET['IDPROPIETARIO'])){
+		$sql = $dbConn->prepare("select * from tbl_sucursales where IDPROPIETARIO = :IDPROPIETARIO");
+      $sql->bindValue(':IDPROPIETARIO', $_GET['IDPROPIETARIO']);
+	  $sql->setFetchMode(PDO::FETCH_ASSOC);
+      $sql->execute();
+      header("HTTP/1.1 200 OK");
+      echo json_encode(  $sql->fetchAll()  );
+      exit();
+	  }
+	  
+	  else if(isset($_GET['IDSUCURSAL'])){
+		$sql = $dbConn->prepare("select * from tbl_cliente where IDSUCURSAL = :IDSUCURSAL");
+      $sql->bindValue(':IDSUCURSAL', $_GET['IDSUCURSAL']);
+	  $sql->setFetchMode(PDO::FETCH_ASSOC);
+      $sql->execute();
+      header("HTTP/1.1 200 OK");
+      echo json_encode(  $sql->fetchAll()  );
+      exit();
+	  }
 
 	  else {
       //Mostrar lista de post
