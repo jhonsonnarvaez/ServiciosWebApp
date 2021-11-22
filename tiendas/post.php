@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
       exit();
 	  }
 	  
-	  else if(isset($_GET['IDSUCURSAL'])){
+	  else if(isset($_GET['IDSUCURSAL']) && isset($_GET['CLIENTE'])){
 		$sql = $dbConn->prepare("select * from tbl_cliente where IDSUCURSAL = :IDSUCURSAL");
       $sql->bindValue(':IDSUCURSAL', $_GET['IDSUCURSAL']);
 	  $sql->setFetchMode(PDO::FETCH_ASSOC);
@@ -37,6 +37,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
       echo json_encode(  $sql->fetchAll()  );
       exit();
 	  }
+	  
+	  else if(isset($_GET['IDSUCURSALES']) && isset($_GET['DEUDAS'])){
+		$sql = $dbConn->prepare("select c.nombrecliente, c.apellidocliente, cobr.totalcobrar from tbl_ventas v 
+		inner join tbl_cliente c  on v.idcliente = c.idcliente inner join tbl_cuentas cue  on cue.idventa = v.idventa 
+		inner join tbl_cuentaporcobrar cobr on cobr.idcuentaporcobrar=cue.idcuentaporcobrar where 
+		cue.cuentacancelada=0 and cue.estadocuenta=1 and c.idsucursal= :IDSUCURSALES ;");
+      $sql->bindValue(':IDSUCURSALES', $_GET['IDSUCURSALES']);
+	  $sql->setFetchMode(PDO::FETCH_ASSOC);
+      $sql->execute();
+      header("HTTP/1.1 200 OK");
+      echo json_encode(  $sql->fetchAll()  );
+      exit();
+	  }
+	  
+	  else if(isset($_GET['idsucursal'])&& isset($_GET['VENTA'])){
+      //Mostrar lista de post
+      $sql = $dbConn->prepare("SELECT ven.fechaventa as fechaventa, sum(ven.totalventa) as total FROM tbl_sucursales suc INNER JOIN tbl_cliente cli 
+	  on suc.idsucursal = cli.idsucursal INNER JOIN tbl_ventas ven on cli.idcliente=ven.idcliente WHERE 
+	  suc.idsucursal= :idsucursal GROUP BY ven.fechaventa, ven.totalventa");
+      $sql->bindValue(':idsucursal', $_GET['idsucursal']);
+      $sql->execute();
+      $sql->setFetchMode(PDO::FETCH_ASSOC);
+      header("HTTP/1.1 200 OK");
+      echo json_encode( $sql->fetchAll()  );
+      exit();
+    }
 
 	  else {
       //Mostrar lista de post
