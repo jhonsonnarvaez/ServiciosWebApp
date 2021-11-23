@@ -39,11 +39,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET')
 	  }
 	  
 	  else if(isset($_GET['IDSUCURSALES']) && isset($_GET['DEUDAS'])){
-		$sql = $dbConn->prepare("select c.nombrecliente, c.apellidocliente, cobr.totalcobrar from tbl_ventas v 
+		$sql = $dbConn->prepare("select c.idcliente, c.nombrecliente, c.apellidocliente, cobr.totalcobrar from tbl_ventas v 
 		inner join tbl_cliente c  on v.idcliente = c.idcliente inner join tbl_cuentas cue  on cue.idventa = v.idventa 
 		inner join tbl_cuentaporcobrar cobr on cobr.idcuentaporcobrar=cue.idcuentaporcobrar where 
 		cue.cuentacancelada=0 and cue.estadocuenta=1 and c.idsucursal= :IDSUCURSALES ;");
       $sql->bindValue(':IDSUCURSALES', $_GET['IDSUCURSALES']);
+	  $sql->setFetchMode(PDO::FETCH_ASSOC);
+      $sql->execute();
+      header("HTTP/1.1 200 OK");
+      echo json_encode(  $sql->fetchAll()  );
+      exit();
+	  }
+	  
+	  else if(isset($_GET['IDCLIENTE']) && isset($_GET['DEUDAS'])){
+		$sql = $dbConn->prepare("select det.cantidad,p.nombreproducto, det.precioventa from tbl_detalleventa det inner join tbl_productos p  
+		on det.idproducto = p.idproducto inner join tbl_ventas ven on det.idventa = ven.idventa inner join tbl_cuentas cue on ven.idventa = cue.idventa 
+		where cue.cuentacancelada = 0 and ven.idcliente = :IDCLIENTE");
+      $sql->bindValue(':IDCLIENTE', $_GET['IDCLIENTE']);
 	  $sql->setFetchMode(PDO::FETCH_ASSOC);
       $sql->execute();
       header("HTTP/1.1 200 OK");
